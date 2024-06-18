@@ -1,10 +1,10 @@
 from rest_framework_gis import serializers
 from rest_framework import serializers as serial
-from .models import Farm
+from .models import factoryAll
 
-#Farm
-class farmSerializer(serializers.GeoFeatureModelSerializer):
+
+class factorySerializer(serializers.GeoFeatureModelSerializer):
     class Meta:
-        model = Farm
-        fields = ('gid','begin')
+        model = factoryAll
+        fields = ('gid','feature','division','area')
         geo_field = "geom"

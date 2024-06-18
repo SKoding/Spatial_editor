@@ -1,9 +1,8 @@
 from rest_framework import routers
-from .views import farmViewSet
+from .views import factoryViewSet
 
 ## Register Viewsets as APIs 
 router = routers.DefaultRouter()
-router.register(r"farms", farmViewSet)
-
+router.register(r"Factories", factoryViewSet)
 
 urlpatterns = router.urls

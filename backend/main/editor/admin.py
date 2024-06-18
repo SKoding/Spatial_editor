@@ -1,6 +1,6 @@
 from django.contrib import admin
 #from django.contrib.gis import admin as gisAdmin
-from .models import Farm
+from .models import factoryAll
 #Using Leaflet because OSMGeoadmin refused
 from leaflet.admin import LeafletGeoAdmin
 from leaflet_admin_list.admin import LeafletAdminListMixin
@@ -11,5 +11,4 @@ from leaflet_admin_list.admin import LeafletAdminListMixin
 #     list_display = ('gid','begin',)
 #     search_fields = ('begin',)
 #     ordering = ('gid',)
-
-admin.site.register(Farm,LeafletGeoAdmin)
+admin.site.register(factoryAll,LeafletGeoAdmin)
