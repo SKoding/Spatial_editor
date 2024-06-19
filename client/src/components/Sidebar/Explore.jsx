@@ -1,16 +1,14 @@
 import React, { useState,useContext, useEffect, useRef } from 'react'
 import { MapContext } from '../../Context/MapContext';
 import axios from 'axios';
+import LayerStyleControls from './LayerControlsStyle';
 import { useReactToPrint } from 'react-to-print';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 function Explore() {
   const [markerLocation, setMarkerLocation] = useContext(MapContext)
-  const [areaSpecies, setAreaSpecies] = useState(""); 
   const [areaName, setAreaName] = useState("");
-  const [mapDataPrint, setMapDataPrint] = useState([]);
-  const mapRef = useRef();
 
     useEffect(() => {
       const getArea = async () => {
@@ -28,52 +26,6 @@ function Explore() {
       };
       getArea();
     }, [markerLocation]);
-
-    useEffect(() => {
-      const getSpecies = async () => {
-        const species = await axios.get(
-          "http://localhost:8000/api/v1/species/species_within/", {
-            params: {
-              lat:markerLocation.lat,
-              lng:markerLocation.lng
-            }
-          }
-        );
-        const specData=species.data;
-        setAreaSpecies(specData.features[0].properties.species);
-      };
-      getSpecies();
-    }, [markerLocation]);
-
-    // var speci = areaSpecies.features
-    // var feat = areaName.features
-    //console.log(speci);
-    //console.log(Object.entries(speci));
-
-    // Map Printing
-    useEffect(() => {
-      // Fetch the map data from the API
-      axios.get('http://localhost:8000/api/v1/Factories/')
-          .then(response => {
-              setMapDataPrint(response.data);
-          })
-          .catch(error => {
-              console.error("There was an error fetching the map data!", error);
-          });
-  }, []);
-
-  const handlePrint = useReactToPrint({
-      content: () => mapRef.current,
-  });
-
-  const handlePrintToPDF = async () => {
-      const element = mapRef.current;
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF();
-      pdf.addImage(imgData, 'PNG', 0, 0);
-      pdf.save("map.pdf");
-  }; 
 
   return (
     <div className="m-2 h-screen ">
@@ -146,13 +98,14 @@ function Explore() {
             readOnly
           />
         </div>
+        <LayerStyleControls />
         {/* <button
           type="submit"
           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Submit
         </button> */}
-        <button onClick={handlePrintToPDF}>Print Map to PDF</button>
+        {/* <button onClick={handlePrintToPDF}>Print Map to PDF</button> */}
       </form>
     </div>
   );

@@ -27,6 +27,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.11.2",
+    "react-select": "^5.8.0",
     "react-to-print": "^2.15.1",
     "swr": "^2.1.5"
   },

@@ -2,12 +2,15 @@ import React from 'react'
 import Landing from './components/Landing'
 import './App.css'
 import { MapProvider } from './Context/MapContext'
+import { EditProvider } from './Context/EditDataContext'
 
 function App() { 
   return (
-    <MapProvider >
-      <Landing />
-    </MapProvider>
+    <EditProvider>
+      <MapProvider >
+        <Landing />
+      </MapProvider>
+    </EditProvider>
   )
 }
 

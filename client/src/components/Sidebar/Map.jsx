@@ -27,6 +27,7 @@ import { Alert, Spinner } from "react-bootstrap";
 import { MapContext } from "../../Context/MapContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { EditContext } from "../../Context/EditDataContext";
 import { useReactToPrint } from "react-to-print";
 
 
@@ -124,66 +125,10 @@ const LocationFinderDummy = () => {
   );
 };
 
-// const fetcher = (url) => axios.get(url).then((res) => res.data);
-
 function Map() {
-  //   const [activeAdmin, setActiveAdmin] = useState(null);
-  //   const { data, error } = useSWR("http://localhost:8000/api/administrative/", fetcher);
-  //   const admins = data && !error ? data : {};
-
-  //   console.log(admins)
-  //   if (error) {
-  //     return <Alert variant="danger">There is a problem</Alert>;
-  //  }
   const MyData = () => {
-    const [data, setData] = useState();
+    const {data, layerStyles} = useContext(EditContext);
     const map = useMap();
-
-    useEffect(() => {
-      const getData = async (bbox) => {
-        const { lat_min, lat_max, lon_min, lon_max } = bbox;
-        try {
-          const response = await axios.get(
-            "http://localhost:8000/api/v1/Factories/", {
-              params: {
-                in_bbox: `${lon_min},${lat_min},${lon_max},${lat_max}`
-            }
-            }
-          );
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching locations:', error);
-    }   
-      };
-      const bbox = {
-        lat_min: 0.12,
-        lat_max: 0.2,
-        lon_min: 34.89,
-        lon_max: 34.96
-    };
-//     const updateBounds = () => {
-//       const map = mapRef.current;
-//       if (map) {
-//           const bounds = map.getBounds();
-//           const bbox = {
-//               lat_min: bounds.getSouth(),
-//               lat_max: bounds.getNorth(),
-//               lon_min: bounds.getWest(),
-//               lon_max: bounds.getEast()
-//           };
-//           getData(bbox);
-//       }
-//   };
-//   const MapEvents = () => {
-//     useMapEvents({
-//         moveend: updateBounds,
-//         zoomend: updateBounds
-//     });
-//     return null;
-// };
-       getData(bbox);
-    }, []);
-
     if (!data) {
       return (
         <Spinner
@@ -213,28 +158,31 @@ function Map() {
         layer.bindPopup(feature.properties.name_4);
       }
     }
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return layerStyles[layerId] || {
+          color: 'blue',
+          weight: 2,
+          fillOpacity: 0.05
+      };
+  };
 
     if (data) {
-      // These next 3 lines purely for debuggins:
-      //const geojsonObject = L.geoJSON(data);
-      // map.fitBounds(geojsonObject.getBounds());
-      //console.log(geojsonObject);
-      // end debugging
-
       return (
         <GeoJSON
           data={data}
           onEachFeature={onEachFeatureMap}
-          style={() => {
-            return {
-              color: "blue",
-              dashArray: "3",
-              fillColor: "#f0f0f0",
-              fillOpacity: 0.01,
-              opacity: 1,
-              weight: 2,
-            };
-          }}
+          style={getStyle}
+          // style={() => {
+          //   return {
+          //     color: "blue",
+          //     dashArray: "2",
+          //     fillColor: "#f0f0f0",
+          //     fillOpacity: 0.01,
+          //     opacity: 1,
+          //     weight: 2,
+          //   };
+          // }}
         />
       );
     } else {
@@ -272,7 +220,7 @@ function Map() {
                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png"
               />
             </LayersControl.Overlay>
-            <LayersControl.Overlay name="Farms">
+            <LayersControl.Overlay checked name="Farms">
               <MyData />
             </LayersControl.Overlay>
           </LayersControl>
