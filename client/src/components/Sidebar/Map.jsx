@@ -3,7 +3,6 @@ import React, {
   useState,
   useCallback,
   useContext,
-  useEffect,
   useRef
 } from "react";
 import {
@@ -21,14 +20,10 @@ import { useMapEvent } from "react-leaflet/hooks";
 import { useEventHandlers } from "@react-leaflet/core";
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
-import { Icon } from "leaflet";
-import axios from "axios";
-import { Alert, Spinner } from "react-bootstrap";
 import { MapContext } from "../../Context/MapContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { EditContext } from "../../Context/EditDataContext";
-import { useReactToPrint } from "react-to-print";
 
 
 // Classes used by Leaflet to position controls
@@ -126,24 +121,12 @@ const LocationFinderDummy = () => {
 };
 
 function Map() {
+  const {data, featureStyles, kapData, taiData, taiFeatData, mokData, mokFeatData} = useContext(EditContext);
+  
   const MyData = () => {
-    const {data, layerStyles} = useContext(EditContext);
+    
     const map = useMap();
-    if (!data) {
-      return (
-        <Spinner
-          animation="border"
-          variant="danger"
-          role="status"
-          style={{
-            width: "400px",
-            height: "400px",
-            margin: "auto",
-            display: "block",
-          }}
-        />
-      );
-    }
+
     function zoomToFeature(e) {
       map.fitBounds(e.target.getBounds());
     }
@@ -154,18 +137,19 @@ function Map() {
         // mouseover:highlightFeature,
         // mouseout: resetHighlight,
       });
-      if (feature.properties && feature.properties.name_4) {
-        layer.bindPopup(feature.properties.name_4);
+      if (feature.properties && feature.properties.feature) {
+        layer.bindPopup("<strong>" + feature.properties.field_code +"</strong>" + "<br>" + feature.properties.feature + "<br>" + feature.properties.area +" <strong>Ha</strong>");
       }
     }
     const getStyle = (feature) => {
       const layerId = feature.id;
-      return layerStyles[layerId] || {
-          color: 'blue',
+      return featureStyles[layerId] || {
+          color: '#00b300',
           weight: 2,
-          fillOpacity: 0.05
+          fillOpacity: 0.5
       };
   };
+
 
     if (data) {
       return (
@@ -173,27 +157,203 @@ function Map() {
           data={data}
           onEachFeature={onEachFeatureMap}
           style={getStyle}
-          // style={() => {
-          //   return {
-          //     color: "blue",
-          //     dashArray: "2",
-          //     fillColor: "#f0f0f0",
-          //     fillOpacity: 0.01,
-          //     opacity: 1,
-          //     weight: 2,
-          //   };
-          // }}
         />
       );
     } else {
       return null;
     }
   };
+
+  const MyAdditionalData = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.name) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.feature + "</strong>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#741d1d',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return kapData ? (
+      <GeoJSON
+        data={kapData}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+
+  const TaiData = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.feature) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.field_code + "</strong>" +
+          "<br>" + feature.properties.feature + "<br>" + feature.properties.area + " <strong>Ha</strong>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#008000',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return taiData ? (
+      <GeoJSON
+        data={taiData}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+  const TaiFeatData = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.name) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.name + "</strong>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#a52a2a',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return taiFeatData ? (
+      <GeoJSON
+        data={taiFeatData}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+  const MokData = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.feature) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.field_code + "</strong>" +
+          "<br>" + feature.properties.feature + "<br>" + feature.properties.area + " <strong>Ha</strong>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#24ad26',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return mokData ? (
+      <GeoJSON
+        data={mokData}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+  const MokFeatData = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.name) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.name + "</strong>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#ffa0a0',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return mokFeatData ? (
+      <GeoJSON
+        data={mokFeatData}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
   // Map Printing
   const mapRef = useRef();
   const handlePrintToPDF = async () => {
     const element = mapRef.current;
-    const canvas = await html2canvas(element);
+    const canvas = await html2canvas(element, {
+      useCORS: true,
+      logging: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight
+    });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({
         orientation: 'landscape',
@@ -211,8 +371,6 @@ function Map() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {/* <SelectData />
-        <NurseryLocation /> */}
           <LayersControl position="topright">
             <LayersControl.Overlay name="Esri Imagery">
               <TileLayer
@@ -220,8 +378,23 @@ function Map() {
                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png"
               />
             </LayersControl.Overlay>
-            <LayersControl.Overlay checked name="Farms">
+            <LayersControl.Overlay checked name="Kapsiwon Tea">
               <MyData />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Kapsiwon Features">
+              <MyAdditionalData />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Taito Tea">
+              <TaiData />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Taito Features">
+              <TaiFeatData />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Mokong Tea">
+              <MokData />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Mokong Features">
+              <MokFeatData />
             </LayersControl.Overlay>
           </LayersControl>
           <MinimapControl position="bottomleft" />
