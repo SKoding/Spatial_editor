@@ -10,8 +10,11 @@ const EditProvider = ({ children }) => {
   const [taiFeatData, setTaiFeatData] = useState();
   const [mokData, setmokData] = useState();
   const [mokFeatData, setMokFeatData] = useState();
+  const [kapPoint, setkapPoint] = useState();
+  const [taiPoint, settaiPoint]= useState();
+  const [mokPoint, setmokPoint] = useState();
   const [featureStyles, setFeatureStyles] = useState({});
-  const [selectedDivision, setSelectedDivision] = useState(null);
+  const [filter, setFilter] = useState(null);
 
   useEffect(() => {
     axios.get('http://localhost:8000/api/v1/KapFeat/').then(response => setkapData(response.data)).catch(error => console.error(error))
@@ -19,6 +22,9 @@ const EditProvider = ({ children }) => {
     axios.get('http://localhost:8000/api/v1/taiFeat/').then(response => setTaiFeatData(response.data)).catch(error => console.error(error))
     axios.get('http://localhost:8000/api/v1/mokTea/').then(response => setmokData(response.data)).catch(error => console.error(error))
     axios.get('http://localhost:8000/api/v1/mokFeat/').then(response => setMokFeatData(response.data)).catch(error => console.error(error))
+    axios.get('http://localhost:8000/api/v1/mokPoint/').then(response => setmokPoint(response.data)).catch(error => console.error(error))
+    axios.get('http://localhost:8000/api/v1/kapPoint/').then(response => setkapPoint(response.data)).catch(error => console.error(error))
+    axios.get('http://localhost:8000/api/v1/taiPoint/').then(response => settaiPoint(response.data)).catch(error => console.error(error))
 
     const getData = async (bbox) => {
       const { lat_min, lat_max, lon_min, lon_max } = bbox;
@@ -99,8 +105,10 @@ const EditProvider = ({ children }) => {
     updateFeatureStyle
   }), [data, featureStyles, updateFeatureStyle]);
 
+  
+
   return (
-    <EditContext.Provider value={{ data,kapData, taiData, taiFeatData, mokData, mokFeatData,featureStyles, contextValue }}>
+    <EditContext.Provider value={{ setFilter,filter,data,kapData, taiData, taiFeatData, mokData, mokFeatData,featureStyles, contextValue, kapPoint, taiPoint, mokPoint }}>
       {children}
     </EditContext.Provider>
   );

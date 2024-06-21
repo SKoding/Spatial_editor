@@ -1,27 +1,28 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import Select from 'react-select';
 import { EditContext } from '../../Context/EditDataContext';
+import './DivisionFilter.css'; // Import CSS file for styling
 
 const DivisionFilter = () => {
-    const { data, selectedDivision, setSelectedDivision } = useContext(EditContext);
-    const divisionOptions = useMemo(() => {
-        if (!data) return [];
-        const divisions = Array.from(new Set(data.features.map(feature => feature.properties.division)));
-        return divisions.map(division => ({ value: division, label: division }));
-    }, [data]);
-    console.log(selectedDivision)
+  const { setFilter } = useContext(EditContext);
 
-    return (
-        <div>
-            <h2>Filter by Division</h2>
-            <Select
-                options={divisionOptions}
-                onChange={setSelectedDivision}
-                value={selectedDivision}
-                placeholder="Select Division"
-            />
-        </div>
-    );
+  const options = [
+    { value: '', label: 'Select Data' },
+    { value: 'taiData', label: 'Taito Division' },
+    { value: 'mokData', label: 'Mokong Division' },
+    { value: 'kapData', label: 'Kapsiwon Division' },
+  ];
+
+  const handleFilterChange = (selectedOption) => {
+    setFilter(selectedOption.value);
+  };
+
+  return (
+    <div className="division-filter">
+      <h3 className='text-center mb-2 font-semibold'>Filter Data</h3>
+      <Select options={options} onChange={handleFilterChange} />
+    </div>
+  );
 };
 
 export default DivisionFilter;

@@ -21,9 +21,10 @@ import { useEventHandlers } from "@react-leaflet/core";
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
 import { MapContext } from "../../Context/MapContext";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { EditContext } from "../../Context/EditDataContext";
+import { useMapRef } from "../../Context/MapRefContext";
+import Legend from "./Legend";
+import DivisionFilter from "./DivisionFilter";
 
 
 // Classes used by Leaflet to position controls
@@ -121,7 +122,23 @@ const LocationFinderDummy = () => {
 };
 
 function Map() {
-  const {data, featureStyles, kapData, taiData, taiFeatData, mokData, mokFeatData} = useContext(EditContext);
+  const {filter,data, featureStyles, kapData, taiData, taiFeatData, mokData, mokFeatData, mokPoint, taiPoint, kapPoint} = useContext(EditContext);
+    // Map Printing
+    const mapRef = useMapRef();
+
+    const getFilteredData = () => {
+      switch (filter) {
+        case 'Kapsiwon Division':
+          return data;
+        case 'Taito Division':
+          return taiData;
+        case 'Mokong Division':
+          return mokData;
+        // Add cases for additional datasets as needed
+        default:
+          return null; // Handle default case or no filter selected
+      }
+    };
   
   const MyData = () => {
     
@@ -236,6 +253,115 @@ function Map() {
       />
     ) : null;
   };
+  const TaiPoint = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getCenter());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.feature) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.name + "</strong>" +
+          "<br>" + feature.properties.feature + "<br>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#008000',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return taiPoint ? (
+      <GeoJSON
+        data={taiPoint}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+
+  const KapPoint = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.feature) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.name + "</strong>" +
+          "<br>" + feature.properties.feature + "<br>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: 'red',
+      };
+    };
+
+    return kapPoint ? (
+      <GeoJSON
+        data={kapPoint}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+
+  const MokPoint = () => {
+    const map = useMap();
+
+    const zoomToFeature = (e) => {
+      map.fitBounds(e.target.getBounds());
+    };
+
+    const onEachFeatureMap = (feature, layer) => {
+      layer.on({
+        click: zoomToFeature,
+      });
+      if (feature.properties && feature.properties.feature) {
+        layer.bindPopup(
+          "<strong>" + feature.properties.name + "</strong>" +
+          "<br>" + feature.properties.feature + "<br>"
+        );
+      }
+    };
+
+    const getStyle = (feature) => {
+      const layerId = feature.id;
+      return featureStyles[layerId] || {
+        color: '#fb8072',
+        weight: 2,
+        fillOpacity: 0.5
+      };
+    };
+
+    return mokPoint ? (
+      <GeoJSON
+        data={mokPoint}
+        onEachFeature={onEachFeatureMap}
+        style={getStyle}
+      />
+    ) : null;
+  };
+
   const TaiFeatData = () => {
     const map = useMap();
 
@@ -342,30 +468,25 @@ function Map() {
       />
     ) : null;
   };
-  // Map Printing
-  const mapRef = useRef();
-  const handlePrintToPDF = async () => {
-    const element = mapRef.current;
-    const canvas = await html2canvas(element, {
-      useCORS: true,
-      logging: true,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [element.clientWidth, element.clientHeight]
-    });
-    pdf.addImage(imgData, 'PNG', 0, 0, element.clientWidth, element.clientHeight);
-    pdf.save("map.pdf");
-};
+
+  const renderFilteredComponent = () => {
+    switch (filter) {
+      case 'taiData':
+        return <TaiData />;
+      case 'mokData':
+        return <MokData />;
+      case 'kapData':
+        return <MyData />;
+      default:
+        return null; // Handle default case or no filter selected
+    }
+  };
+
+  
   return (
     <div>
-      <div className="h-full" ref={mapRef}>
+      <div className="h-full">
+        {/* <DivisionFilter/> */}
         <MapContainer center={[0.116, 35.189]} zoom={14} scrollWheelZoom={true} whenCreated={mapInstance => { mapRef.current = mapInstance }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -379,29 +500,40 @@ function Map() {
               />
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Kapsiwon Tea">
-              <MyData />
+            {filter === 'kapData' && <MyData />}
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Kapsiwon Features">
               <MyAdditionalData />
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Taito Tea">
-              <TaiData />
+            {filter === 'taiData' &&<TaiData />}
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Taito Features">
               <TaiFeatData />
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Mokong Tea">
-              <MokData />
+            {filter === 'mokData' &&<MokData />}
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Mokong Features">
               <MokFeatData />
             </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Mokong Shades">
+              <MokPoint />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Kapsiwon Shades">
+              <KapPoint />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay checked name="Taito Shades">
+              <TaiPoint />
+            </LayersControl.Overlay>
           </LayersControl>
           <MinimapControl position="bottomleft" />
           <LocationFinderDummy />
+          {renderFilteredComponent()}
         </MapContainer>
+        <Legend />
       </div>
-      <button onClick={handlePrintToPDF}>Print Map</button>
+      {/* <button onClick={handlePrintToPDF}>Print Map</button> */}
     </div>
   );
 }

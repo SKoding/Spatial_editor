@@ -1,60 +1,38 @@
-import React, { useState,useContext, useEffect, useRef } from 'react'
-import axios from 'axios'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { useReactToPrint } from 'react-to-print';
-import html2canvas from 'html2canvas';
+// PrintButton.js
+import React from 'react';
+import { useMapRef } from '../Context/MapRefContext';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-const MapComponent = () => {
-    const [mapData, setMapData] = useState([]);
-    const mapRef = useRef();
+const PrintButton = () => {
+  const mapRef = useMapRef();
 
-    useEffect(() => {
-        // Fetch the map data from the API
-        axios.get('http://localhost:8000/api/v1/Factories/')
-            .then(response => {
-                setMapData(response.data);
-            })
-            .catch(error => {
-                console.error("There was an error fetching the map data!", error);
-            });
-    }, []);
+  const handlePrintToPDF = async () => {
+    const map = mapRef.current;
+    map.invalidateSize(); // Ensure the map is fully rendered and centered
 
-    const handlePrint = useReactToPrint({
-        content: () => mapRef.current,
+    const element = map.getContainer();
+    const canvas = await html2canvas(element, {
+      useCORS: true,
+      logging: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight
     });
 
-    const handlePrintToPDF = async () => {
-        const element = mapRef.current;
-        const canvas = await html2canvas(element);
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, 'PNG', 0, 0);
-        pdf.save("map.pdf");
-    };
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: [canvas.width, canvas.height]
+    });
 
-    return (
-        <div>
-            <div ref={mapRef} style={{ height: '500px', width: '100%' }}>
-                <MapContainer center={[0.116, 35.189]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    {mapData.map(factory => (
-                        <Marker key={factory.id} position={[factory.location.lat, factory.location.lng]}>
-                            <Popup>
-                                {factory.name}
-                            </Popup>
-                        </Marker>
-                    ))}
-                </MapContainer>
-            </div>
-            <button onClick={handlePrintToPDF}>Print Map to PDF</button>
-        </div>
-    );
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save("map.pdf");
+  };
+
+  return <button    onClick={handlePrintToPDF}>Print Map</button>;
 };
 
-export default MapComponent;
-
+export default PrintButton;

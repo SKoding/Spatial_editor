@@ -1,6 +1,6 @@
 from rest_framework_gis import serializers
 from rest_framework import serializers as serial
-from .models import factoryAll, kapsiwonTea, kapsiwonFeatures, taitoTea, taitoFeatures, mokongTea, mokongFeatures
+from .models import factoryAll, kapsiwonTea, kapsiwonFeatures, taitoTea, taitoFeatures, mokongTea, mokongFeatures, mokongPoints, kapsiwonPoints, taitoPoints
 
 
 class factorySerializer(serializers.GeoFeatureModelSerializer):
@@ -21,6 +21,12 @@ class kapsiwonFeatureSerializer(serializers.GeoFeatureModelSerializer):
         fields = ('gid','feature','name')
         geo_field = "geom"
 
+class kapsiwonPointSerializer(serializers.GeoFeatureModelSerializer):
+    class Meta:
+        model = kapsiwonPoints
+        fields = ('gid','feature','name')
+        geo_field = "geom"
+
 class taitoTeaSerializer(serializers.GeoFeatureModelSerializer):
     class Meta:
         model = taitoTea
@@ -33,6 +39,12 @@ class taitoFeatureSerializer(serializers.GeoFeatureModelSerializer):
         fields = ('gid','feature','name')
         geo_field = "geom"
 
+class taitoPointSerializer(serializers.GeoFeatureModelSerializer):
+    class Meta:
+        model = taitoPoints
+        fields = ('gid','feature','name')
+        geo_field = "geom"
+
 class mokongTeaSerializer(serializers.GeoFeatureModelSerializer):
     class Meta:
         model = mokongTea
@@ -42,5 +54,11 @@ class mokongTeaSerializer(serializers.GeoFeatureModelSerializer):
 class mokongFeatureSerializer(serializers.GeoFeatureModelSerializer):
     class Meta:
         model = mokongFeatures
+        fields = ('gid','feature','name')
+        geo_field = "geom"
+
+class mokongPointSerializer(serializers.GeoFeatureModelSerializer):
+    class Meta:
+        model = mokongPoints
         fields = ('gid','feature','name')
         geo_field = "geom"

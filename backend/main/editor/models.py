@@ -53,6 +53,21 @@ class kapsiwonFeatures(gis_models.Model):
     def __str__(self):
         """Return string representation."""
         return self.name
+
+class kapsiwonPoints(gis_models.Model):
+    gid = models.IntegerField(unique=True, primary_key=True)
+    feature = models.CharField(_('feature'),max_length=24)
+    name = models.CharField(_('division'),max_length=24)
+    geom = gis_models.MultiPolygonField(srid=4326)
+
+    class Meta:
+        db_table = 'kapsiwon_points'
+        managed = False
+        verbose_name =('Kapsiwon Points') 
+    
+    def __str__(self):
+        """Return string representation."""
+        return self.name
     
 class taitoTea(gis_models.Model):
     gid = models.IntegerField(unique=True, primary_key=True)
@@ -85,6 +100,21 @@ class taitoFeatures(gis_models.Model):
     def __str__(self):
         """Return string representation."""
         return self.name
+    
+class taitoPoints(gis_models.Model):
+    gid = models.IntegerField(unique=True, primary_key=True)
+    feature = models.CharField(_('feature'),max_length=24)
+    name = models.CharField(_('division'),max_length=24)
+    geom = gis_models.MultiPolygonField(srid=4326)
+
+    class Meta:
+        db_table = 'taito_points'
+        managed = False
+        verbose_name =('Taito Points') 
+    
+    def __str__(self):
+        """Return string representation."""
+        return self.name
 
 class mokongTea(gis_models.Model):
     gid = models.IntegerField(unique=True, primary_key=True)
@@ -113,6 +143,21 @@ class mokongFeatures(gis_models.Model):
         db_table = 'mokong_features'
         managed = False
         verbose_name =('Taito Features') 
+    
+    def __str__(self):
+        """Return string representation."""
+        return self.name
+    
+class mokongPoints(gis_models.Model):
+    gid = models.IntegerField(unique=True, primary_key=True)
+    feature = models.CharField(_('feature'),max_length=24)
+    name = models.CharField(_('division'),max_length=24)
+    geom = gis_models.MultiPolygonField(srid=4326)
+
+    class Meta:
+        db_table = 'mokong_points'
+        managed = False
+        verbose_name =('Mokong Points') 
     
     def __str__(self):
         """Return string representation."""

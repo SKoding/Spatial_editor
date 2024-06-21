@@ -3,14 +3,17 @@ import Landing from './components/Landing'
 import './App.css'
 import { MapProvider } from './Context/MapContext'
 import { EditProvider } from './Context/EditDataContext'
+import { MapRefProvider } from './Context/MapRefContext'
 
-function App() { 
+function App() {
   return (
-    <EditProvider>
-      <MapProvider >
-        <Landing />
-      </MapProvider>
-    </EditProvider>
+    <MapRefProvider>
+      <EditProvider>
+        <MapProvider >
+          <Landing />
+        </MapProvider>
+      </EditProvider>
+    </MapRefProvider>
   )
 }
 

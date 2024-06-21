@@ -6,6 +6,7 @@ import { useReactToPrint } from 'react-to-print';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import DivisionFilter from './DivisionFilter';
+import PrintButton from '../Printer';
 
 function Explore() {
   const [markerLocation, setMarkerLocation] = useContext(MapContext)
@@ -60,14 +61,17 @@ function Explore() {
             />
           </div>
         </div>
-        <div className='mb-4'>
-          <DivisionFilter />
+        <div className='mb-4 align-middle border-2'>
+        <DivisionFilter />
         </div>
-        <div className='italic font-bold mb-4'>
+        <div className='italic font-bold mb-4 text-center'>
         Symbology
         </div>
         <div className='mb-4'>
           <LayerStyleControls />
+        </div>
+        <div className='border-2 align-center rounded text-center mt-4 text-white bg-green-400 hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 '>
+          <PrintButton className='mt-4' />
         </div>
         {/* <button
           type="submit"
