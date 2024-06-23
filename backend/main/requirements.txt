@@ -1,0 +1,11 @@
+asgiref==3.8.1
+Django==5.0.6
+django-cors-headers==4.3.1
+django-filter==24.2
+django-leaflet==0.30.0
+django-leaflet-admin-list==0.0.7
+djangorestframework==3.15.1
+djangorestframework-gis==1.0
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+sqlparse==0.5.0

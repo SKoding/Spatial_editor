@@ -26,7 +26,7 @@ class kapsiwonTea(gis_models.Model):
     gid = models.IntegerField(unique=True, primary_key=True)
     feature = models.CharField(_('feature'),max_length=24)
     field_code = models.CharField(_('division'),max_length=24)
-    area =models.IntegerField()
+    area =models.FloatField()
     geom = gis_models.MultiPolygonField(srid=4326)
 
     class Meta:
@@ -52,7 +52,7 @@ class kapsiwonFeatures(gis_models.Model):
     
     def __str__(self):
         """Return string representation."""
-        return self.name
+        return self.feature
 
 class kapsiwonPoints(gis_models.Model):
     gid = models.IntegerField(unique=True, primary_key=True)
@@ -67,7 +67,7 @@ class kapsiwonPoints(gis_models.Model):
     
     def __str__(self):
         """Return string representation."""
-        return self.name
+        return self.feature +  ' ' + self.name
     
 class taitoTea(gis_models.Model):
     gid = models.IntegerField(unique=True, primary_key=True)
@@ -84,7 +84,7 @@ class taitoTea(gis_models.Model):
     
     def __str__(self):
         """Return string representation."""
-        return self.field_code
+        return self.feature
     
 class taitoFeatures(gis_models.Model):
     gid = models.IntegerField(unique=True, primary_key=True)
@@ -142,7 +142,7 @@ class mokongFeatures(gis_models.Model):
     class Meta:
         db_table = 'mokong_features'
         managed = False
-        verbose_name =('Taito Features') 
+        verbose_name =('mokong Features') 
     
     def __str__(self):
         """Return string representation."""
@@ -161,4 +161,4 @@ class mokongPoints(gis_models.Model):
     
     def __str__(self):
         """Return string representation."""
-        return self.name
+        return self.feature
