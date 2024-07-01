@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.gis.db import models as gis_models
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.gis.geos import GEOSGeometry
 
 # Create your models here.
     
@@ -28,6 +28,13 @@ class kapsiwonTea(gis_models.Model):
     field_code = models.CharField(_('division'),max_length=24)
     area =models.FloatField()
     geom = gis_models.MultiPolygonField(srid=4326)
+
+    # def save(self, *args, **kwargs):
+    #     # Ensure the geometry is stored as 2D
+    #     if self.geom:
+    #         self.geom = GEOSGeometry(self.geom.wkt, srid=self.geom.srid)
+    #         self.geom.coord_dim = 2
+    #     super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'kapsiwon'

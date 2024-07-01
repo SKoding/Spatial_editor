@@ -3,6 +3,8 @@ from django.contrib import admin
 from .models import factoryAll, kapsiwonTea, kapsiwonFeatures, taitoTea, taitoFeatures, mokongTea, mokongFeatures, kapsiwonPoints, taitoPoints, mokongPoints
 #Using Leaflet because OSMGeoadmin refused
 from leaflet.admin import LeafletGeoAdmin
+from .widgets import Leaflet3DGeoAdmin
+from django.contrib.gis.db import models
 from leaflet_admin_list.admin import LeafletAdminListMixin
 
 
@@ -11,6 +13,11 @@ from leaflet_admin_list.admin import LeafletAdminListMixin
 #     list_display = ('gid','begin',)
 #     search_fields = ('begin',)
 #     ordering = ('gid',)
+
+class CustomLeafletGeoAdmin(LeafletGeoAdmin):
+    formfield_overrides = {
+        models.MultiPolygonField: {"widget": Leaflet3DGeoAdmin}
+    }
 
 class factoryAllAdmin(LeafletGeoAdmin):
     list_display = ('feature', 'division', 'area',)
