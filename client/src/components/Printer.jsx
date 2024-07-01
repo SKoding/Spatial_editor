@@ -1,38 +1,48 @@
-// PrintButton.js
+// import React, { useContext } from 'react';
+// import { useMapRef } from '../Context/MapRefContext';
+
+// const PrintMap = () => {
+//   const mapRef = useMapRef();
+
+//   const handlePrint = () => {
+//     if (mapRef.current) {
+//       const mapCanvas = document.querySelector('.leaflet-container');
+//       const printWindow = window.open('', '', 'width=800,height=600');
+//       printWindow.document.write('<html><head><title>Print Map</title>');
+//       printWindow.document.write('</head ><body>');
+//       printWindow.document.write(mapCanvas.outerHTML);
+//       printWindow.document.write('</body></html>');
+//       printWindow.document.close();
+//       printWindow.focus();
+//       printWindow.print();
+//       printWindow.close();
+//     }
+//   };
+
+//   return (
+//     <button onClick={handlePrint}>Print Map</button>
+//   );
+// };
+
+// export default PrintMap;
 import React from 'react';
-import { useMapRef } from '../Context/MapRefContext';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import printJS from 'print-js';
 
-const PrintButton = () => {
-  const mapRef = useMapRef();
-
-  const handlePrintToPDF = async () => {
-    const map = mapRef.current;
-    map.invalidateSize(); // Ensure the map is fully rendered and centered
-
-    const element = map.getContainer();
-    const canvas = await html2canvas(element, {
-      useCORS: true,
-      logging: true,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight
+const PrintButton = ({ componentRef }) => {
+  const handlePrint = () => {
+    printJS({
+      printable: componentRef.current,
+      type: 'html',
+      targetStyles: ['*']
     });
-
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'px',
-      format: [canvas.width, canvas.height]
-    });
-
-    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-    pdf.save("map.pdf");
   };
 
-  return <button    onClick={handlePrintToPDF}>Print Map</button>;
+  return (
+    <button onClick={handlePrint} className="print-button">
+      Print Map
+    </button>
+  );
 };
 
 export default PrintButton;
+

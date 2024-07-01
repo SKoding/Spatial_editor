@@ -3,7 +3,8 @@ import React, {
   useState,
   useCallback,
   useContext,
-  useRef
+  useRef,
+  useEffect
 } from "react";
 import {
   MapContainer,
@@ -22,11 +23,21 @@ import "leaflet/dist/leaflet.css";
 import "./Map.css";
 import { MapContext } from "../../Context/MapContext";
 import { EditContext } from "../../Context/EditDataContext";
+//import { MapRefContext } from "../../Context/MapRefContext";
 import { useMapRef } from "../../Context/MapRefContext";
 import Legend from "./Legend";
-import DivisionFilter from "./DivisionFilter";
+import L from "leaflet";
+import tankIcon from "../../assets/tank.png"
+import locationIcon from "../../assets/location.png"
+import locationPin from "../../assets/location-pin.png"
+import locationMok from "../../assets/location1.png"
+import markerLoc from  "../../assets/gps1.png"
+import gpsIcon from "../../assets/gps.png"
+//import { PrintContextConsumer } from "react-to-print";
+import PrintMap from "../Printer";
+//import DivisionFilter from "./DivisionFilter";
 
-
+//const PrintControl = withLeaflet(PrintControlDefault);
 // Classes used by Leaflet to position controls
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
@@ -122,26 +133,123 @@ const LocationFinderDummy = () => {
 };
 
 function Map() {
-  const {filter,data, featureStyles, kapData, taiData, taiFeatData, mokData, mokFeatData, mokPoint, taiPoint, kapPoint} = useContext(EditContext);
-    // Map Printing
-    const mapRef = useMapRef();
+  const { filter, data, featureStyles, kapData, taiData, taiFeatData, mokData, mokFeatData, mokPoint, taiPoint, kapPoint } = useContext(EditContext);
+  // Map Printing
+  //const mapRef = mapContainerRef();
+  // const mapContainerRef = useRef(null);
+  const mapRef = useMapRef();
+  const componentRef = useRef();
+  const printControlRef = useRef();
 
-    const getFilteredData = () => {
-      switch (filter) {
-        case 'Kapsiwon Division':
-          return data;
-        case 'Taito Division':
-          return taiData;
-        case 'Mokong Division':
-          return mokData;
-        // Add cases for additional datasets as needed
-        default:
-          return null; // Handle default case or no filter selected
-      }
-    };
-  
+  const handlePrint = () => {
+    if (componentRef.current) {
+      printJS({
+        printable: componentRef.current,
+        type: 'html',
+        targetStyles: ['*']
+      });
+    } else {
+      console.error('componentRef is undefined');
+    }
+  };
+
+
+  //   const handlePrint = () => {
+  //   if (mapRef.current) {
+  //     const mapCanvas = document.querySelector('.leaflet-container');
+  //     const printWindow = window.open('', '', 'width=800,height=600');
+  //     printWindow.document.write('<html><head><title>Print Map</title>');
+  //     printWindow.document.write('</head><body>');
+  //     printWindow.document.write(mapCanvas.outerHTML);
+  //     printWindow.document.write('</body></html>');
+  //     printWindow.document.close();
+  //     printWindow.focus();
+  //     printWindow.print();
+  //     printWindow.close();
+  //   }
+  // };
+
+  const getFeatureStyle = (feature) => {
+    switch (feature.properties.feature) {
+      case 'Division Office':
+        return {
+          color: 'blue',
+          weight: 2,
+          fillOpacity: 0.5,
+        };
+      case 'Fertilizer Store':
+          return {
+            color: '#071952',
+            weight: 2,
+            fillOpacity: 0.5,
+          };
+      case "Chief's Camp":
+          return {
+            color: '#088395',
+            weight: 2,
+            fillOpacity: 0.5,
+          };
+      case 'Dispensary':
+        return {
+          color: 'yellow',
+          weight: 2,
+          fillOpacity: 0.5,
+        };
+      case 'Blue Gum Forest':
+          return {
+            color: '#00b300',
+            weight: 2,
+            fillOpacity: 0.5,
+          };
+      case 'Social Hall':
+          return {
+            color: '#AA2B1D',
+            weight: 2,
+            fillOpacity: 0.5,
+          };
+      case 'School':
+            return {
+              color: '#686D76',
+              weight: 2,
+              fillOpacity: 0.5,
+            };
+      case 'Settlement':
+              return {
+                color: '#CC561E',
+                weight: 2,
+                fillOpacity: 0.5,
+              };
+      case 'Swampy Area':
+                return {
+                  color: '#40A7F9',
+                  weight: 2,
+                  fillOpacity: 0.5,
+                };
+      default:
+        return {
+          color: '#00b300',
+          weight: 2,
+          fillOpacity: 0.5,
+        };
+    }
+  };
+
+  const getFilteredData = () => {
+    switch (filter) {
+      case 'Kapsiwon Division':
+        return data;
+      case 'Taito Division':
+        return taiData;
+      case 'Mokong Division':
+        return mokData;
+      // Add cases for additional datasets as needed
+      default:
+        return null; // Handle default case or no filter selected
+    }
+  };
+
   const MyData = () => {
-    
+
     const map = useMap();
 
     function zoomToFeature(e) {
@@ -155,17 +263,17 @@ function Map() {
         // mouseout: resetHighlight,
       });
       if (feature.properties && feature.properties.feature) {
-        layer.bindPopup("<strong>" + feature.properties.field_code +"</strong>" + "<br>" + feature.properties.feature + "<br>" + feature.properties.area +" <strong>Ha</strong>");
+        layer.bindPopup("<strong>" + feature.properties.field_code + "</strong>" + "<br>" + feature.properties.feature + "<br>" + feature.properties.area + " <strong>Ha</strong>");
       }
     }
     const getStyle = (feature) => {
       const layerId = feature.id;
       return featureStyles[layerId] || {
-          color: '#00b300',
-          weight: 2,
-          fillOpacity: 0.5
+        color: '#00b300',
+        weight: 2,
+        fillOpacity: 0.5
       };
-  };
+    };
 
 
     if (data) {
@@ -199,20 +307,11 @@ function Map() {
       }
     };
 
-    const getStyle = (feature) => {
-      const layerId = feature.id;
-      return featureStyles[layerId] || {
-        color: '#741d1d',
-        weight: 2,
-        fillOpacity: 0.5
-      };
-    };
-
     return kapData ? (
       <GeoJSON
         data={kapData}
         onEachFeature={onEachFeatureMap}
-        style={getStyle}
+        style={getFeatureStyle}
       />
     ) : null;
   };
@@ -257,110 +356,253 @@ function Map() {
     const map = useMap();
 
     const zoomToFeature = (e) => {
-      map.fitBounds(e.target.getCenter());
+      map.setView(e.latlng, 16); // Adjust the zoom level as needed
     };
-
-    const onEachFeatureMap = (feature, layer) => {
-      layer.on({
-        click: zoomToFeature,
-      });
-      if (feature.properties && feature.properties.feature) {
-        layer.bindPopup(
-          "<strong>" + feature.properties.name + "</strong>" +
-          "<br>" + feature.properties.feature + "<br>"
-        );
+  
+    const getMarkerIcon = (feature) => {
+      let iconUrl;
+  
+      switch (feature.properties.feature) {
+        case 'Shades':
+          iconUrl = locationPin // Replace with your shade icon URL
+          break;
+        case 'Water Tank':
+          iconUrl = locationMok; // Replace with your water tank icon URL
+          break;
+        default:
+          iconUrl = markerLoc; // Replace with your default icon URL
       }
+  
+      return L.icon({
+        iconUrl,
+        iconSize: [25, 41], // Adjust the size as needed
+        iconAnchor: [12, 41], // Adjust the anchor point as needed
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
     };
-
-    const getStyle = (feature) => {
-      const layerId = feature.id;
-      return featureStyles[layerId] || {
-        color: '#008000',
-        weight: 2,
-        fillOpacity: 0.5
-      };
-    };
-
-    return taiPoint ? (
-      <GeoJSON
-        data={taiPoint}
-        onEachFeature={onEachFeatureMap}
-        style={getStyle}
-      />
-    ) : null;
+  
+    return (
+      <>
+        {taiPoint && taiPoint.features.map((feature) => (
+          <Marker
+            key={feature.properties.id}
+            position={[feature.geometry.coordinates[1], feature.geometry.coordinates[0]]}
+            icon={getMarkerIcon(feature)}
+            eventHandlers={{
+              click: zoomToFeature,
+            }}
+          >
+            <Popup>
+              <strong>{feature.properties.name}</strong><br />
+              {feature.properties.feature}<br />
+            </Popup>
+          </Marker>
+        ))}
+      </>
+    );
   };
 
   const KapPoint = () => {
     const map = useMap();
 
     const zoomToFeature = (e) => {
-      map.fitBounds(e.target.getBounds());
+      map.setView(e.latlng, 16); // Adjust the zoom level as needed
     };
-
-    const onEachFeatureMap = (feature, layer) => {
-      layer.on({
-        click: zoomToFeature,
-      });
-      if (feature.properties && feature.properties.feature) {
-        layer.bindPopup(
-          "<strong>" + feature.properties.name + "</strong>" +
-          "<br>" + feature.properties.feature + "<br>"
-        );
+  
+    const getMarkerIcon = (feature) => {
+      let iconUrl;
+  
+      switch (feature.properties.feature) {
+        case 'Shade':
+          iconUrl = locationIcon // Replace with your shade icon URL
+          break;
+        case 'Water Tank':
+          iconUrl = tankIcon; // Replace with your water tank icon URL
+          break;
+        default:
+          iconUrl = locationIcon; // Replace with your default icon URL
       }
+  
+      return L.icon({
+        iconUrl,
+        iconSize: [25, 41], // Adjust the size as needed
+        iconAnchor: [12, 41], // Adjust the anchor point as needed
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
     };
-
-    const getStyle = (feature) => {
-      const layerId = feature.id;
-      return featureStyles[layerId] || {
-        color: 'red',
-      };
-    };
-
-    return kapPoint ? (
-      <GeoJSON
-        data={kapPoint}
-        onEachFeature={onEachFeatureMap}
-        style={getStyle}
-      />
-    ) : null;
+  
+    return (
+      <>
+        {kapPoint && kapPoint.features.map((feature) => (
+          <Marker
+            key={feature.properties.id}
+            position={[feature.geometry.coordinates[1], feature.geometry.coordinates[0]]}
+            icon={getMarkerIcon(feature)}
+            eventHandlers={{
+              click: zoomToFeature,
+            }}
+          >
+            <Popup>
+              <strong>{feature.properties.name}</strong><br />
+              {feature.properties.feature}<br />
+            </Popup>
+          </Marker>
+        ))}
+      </>
+    );
   };
 
   const MokPoint = () => {
     const map = useMap();
 
     const zoomToFeature = (e) => {
-      map.fitBounds(e.target.getBounds());
+      map.setView(e.latlng, 16); // Adjust the zoom level as needed
     };
+  
+    const shadesLayer = L.layerGroup();
+    const waterTanksLayer = L.layerGroup();
 
-    const onEachFeatureMap = (feature, layer) => {
-      layer.on({
-        click: zoomToFeature,
-      });
-      if (feature.properties && feature.properties.feature) {
-        layer.bindPopup(
-          "<strong>" + feature.properties.name + "</strong>" +
-          "<br>" + feature.properties.feature + "<br>"
-        );
+    const getMarkerIcon = (feature) => {
+      let iconUrl;
+  
+      switch (feature.properties.feature) {
+        case 'Shades':
+          iconUrl = gpsIcon // Replace with your shade icon URL
+          break;
+        case 'Water Tank':
+          iconUrl = markerLoc; // Replace with your water tank icon URL
+          break;
+        default:
+          iconUrl = markerLoc; // Replace with your default icon URL
       }
+  
+      return L.icon({
+        iconUrl,
+        iconSize: [25, 41], // Adjust the size as needed
+        iconAnchor: [12, 41], // Adjust the anchor point as needed
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
     };
 
-    const getStyle = (feature) => {
-      const layerId = feature.id;
-      return featureStyles[layerId] || {
-        color: '#fb8072',
-        weight: 2,
-        fillOpacity: 0.5
-      };
-    };
+    // mokPoint.features.forEach((feature) => {
+    //   const marker = L.marker(
+    //     [feature.geometry.coordinates[1], feature.geometry.coordinates[0]],
+    //     { icon: getMarkerIcon(feature) })
+    //     .bindPopup("<strong>${feature.properties.name}</strong><br /> + ${feature.properties.feature}<br />"
+    //       )
 
-    return mokPoint ? (
-      <GeoJSON
-        data={mokPoint}
-        onEachFeature={onEachFeatureMap}
-        style={getStyle}
-      />
-    ) : null;
+    //   marker.on('Click', zoomToFeature)
+
+    //   if (feature.properties.feature === 'Shades') {
+    //     shadesLayer.addLayer(marker);
+    //   } else if ( feature.properties.feature === 'Water Tank'){
+    //     waterTanksLayer.addLayer(marker);
+    //   }
+    // });
+
+    // shadesLayer.addTo(map);
+    // waterTanksLayer.addTo(map);
+
+    // L.control.layers(null,{
+    //   'Shades':shadesLayer,
+    //   'Water Tanks': waterTanksLayer
+    // }).addTo(map);
+    // return () => {
+    //   map.removeLayer(shadesLayer);
+    //   map.removeLayer(waterTanksLayer);
+    // };
+
+  
+    return (
+      <>
+        {mokPoint && mokPoint.features.map((feature) => (
+          <Marker
+            key={feature.properties.id}
+            position={[feature.geometry.coordinates[1], feature.geometry.coordinates[0]]}
+            icon={getMarkerIcon(feature)}
+            eventHandlers={{
+              click: zoomToFeature,
+            }}
+          >
+            <Popup>
+              <strong>{feature.properties.name}</strong><br />
+              {feature.properties.feature}<br />
+            </Popup>
+          </Marker>
+        ))}
+      </>
+    );
   };
+  // const MokPoint = () => {
+  //   const map = useMap();
+
+  //     const shadesLayer = L.layerGroup();
+  //     const waterTanksLayer = L.layerGroup();
+  
+  //     const zoomToFeature = (e) => {
+  //       map.setView(e.latlng, 16); // Adjust the zoom level as needed
+  //     };
+  
+  //     const getMarkerIcon = (feature) => {
+  //       let iconUrl;
+  
+  //       switch (feature.properties.feature) {
+  //         case 'Shades':
+  //           iconUrl = gpsIcon; // Replace with your shade icon URL
+  //           break;
+  //         case 'Water Tank':
+  //           iconUrl = markerLoc; // Replace with your water tank icon URL
+  //           break;
+  //         default:
+  //           iconUrl = markerLoc; // Replace with your default icon URL
+  //       }
+  
+  //       return L.icon({
+  //         iconUrl,
+  //         iconSize: [25, 41], // Adjust the size as needed
+  //         iconAnchor: [12, 41], // Adjust the anchor point as needed
+  //         popupAnchor: [1, -34],
+  //         shadowSize: [41, 41]
+  //       });
+  //     };
+  
+  //     mokPoint.features.forEach((feature) => {
+  //       const marker = L.marker(
+  //         [feature.geometry.coordinates[1], feature.geometry.coordinates[0]],
+  //         { icon: getMarkerIcon(feature) }
+  //       ).bindPopup(`
+  //         <strong>${feature.properties.name}</strong><br />
+  //         ${feature.properties.feature}<br />
+  //       `);
+  
+  //       marker.on('click', zoomToFeature);
+  
+  //       if (feature.properties.feature === 'Shades') {
+  //         shadesLayer.addLayer(marker);
+  //       } else if (feature.properties.feature === 'Water Tank') {
+  //         waterTanksLayer.addLayer(marker);
+  //       }
+  //     });
+  
+  //     shadesLayer.addTo(map);
+  //     waterTanksLayer.addTo(map);
+  
+  //     L.control.layers(null, {
+  //       'Shades': shadesLayer,
+  //       'Water Tanks': waterTanksLayer,
+  //     }).addTo(map);
+  
+  //     return () => {
+  //       map.removeLayer(shadesLayer);
+  //       map.removeLayer(waterTanksLayer);
+  //     };
+    
+  
+  //   return null;
+  // };
 
   const TaiFeatData = () => {
     const map = useMap();
@@ -380,23 +622,25 @@ function Map() {
       }
     };
 
-    const getStyle = (feature) => {
-      const layerId = feature.id;
-      return featureStyles[layerId] || {
-        color: '#a52a2a',
-        weight: 2,
-        fillOpacity: 0.5
-      };
-    };
+    // const getStyle = (feature) => {
+    //   const layerId = feature.id;
+    //   return featureStyles[layerId] || {
+    //     color: '#a52a2a',
+    //     weight: 2,
+    //     fillOpacity: 0.5
+    //   };
+    // };
+    
 
     return taiFeatData ? (
       <GeoJSON
         data={taiFeatData}
         onEachFeature={onEachFeatureMap}
-        style={getStyle}
+        style={getFeatureStyle}
       />
     ) : null;
   };
+
   const MokData = () => {
     const map = useMap();
 
@@ -419,7 +663,7 @@ function Map() {
     const getStyle = (feature) => {
       const layerId = feature.id;
       return featureStyles[layerId] || {
-        color: '#24ad26',
+        color: '#597445',
         weight: 2,
         fillOpacity: 0.5
       };
@@ -433,6 +677,8 @@ function Map() {
       />
     ) : null;
   };
+
+
   const MokFeatData = () => {
     const map = useMap();
 
@@ -451,20 +697,11 @@ function Map() {
       }
     };
 
-    const getStyle = (feature) => {
-      const layerId = feature.id;
-      return featureStyles[layerId] || {
-        color: '#ffa0a0',
-        weight: 2,
-        fillOpacity: 0.5
-      };
-    };
-
     return mokFeatData ? (
       <GeoJSON
         data={mokFeatData}
         onEachFeature={onEachFeatureMap}
-        style={getStyle}
+        style={getFeatureStyle}
       />
     ) : null;
   };
@@ -481,17 +718,40 @@ function Map() {
         return null; // Handle default case or no filter selected
     }
   };
-
-  
+  const handleDownloadPDF = async () => {
+    const element = mapContainerRef.current;
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+    });
+    const imgWidth = pdf.internal.pageSize.getWidth();
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.save('map.pdf');
+  };
   return (
     <div>
-      <div className="h-full">
+      <div className="h-full" ref={componentRef}>
         {/* <DivisionFilter/> */}
         <MapContainer center={[0.116, 35.189]} zoom={14} scrollWheelZoom={true} whenCreated={mapInstance => { mapRef.current = mapInstance }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+           {/* <PrintControl
+                ref={printControlRef}
+                position="topleft"
+                sizeModes={["Current", "A4Portrait", "A4Landscape"]}
+                hideControlContainer={false}
+              />
+              <PrintControl
+                position="topleft"
+                sizeModes={["Current", "A4Portrait", "A4Landscape"]}
+                hideControlContainer={false}
+                title="Export as PNG"
+                exportOnly
+              /> */}
           <LayersControl position="topright">
             <LayersControl.Overlay name="Esri Imagery">
               <TileLayer
@@ -499,20 +759,33 @@ function Map() {
                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png"
               />
             </LayersControl.Overlay>
+            <LayersControl.Overlay name="Google Terrain">
+              <TileLayer
+                attribution='&copy; <a href="https://www.Google.com/copyright">OpenStreetMap</a> contributors'
+                url="http://mt0.google.com/vt/lyrs=p&hl=en&x={x}&y={y}&z={z}"
+              />
+            </LayersControl.Overlay>
+            
+            <LayersControl.Overlay name="Google Hybrid">
+              <TileLayer
+                attribution='&copy; <a href="https://www.Google.com/copyright">OpenStreetMap</a> contributors'
+                url="http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}"
+              />
+            </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Kapsiwon Tea">
-            {filter === 'kapData' && <MyData />}
+              {filter === 'kapData' && <MyData />}
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Kapsiwon Features">
               <MyAdditionalData />
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Taito Tea">
-            {filter === 'taiData' &&<TaiData />}
+              {filter === 'taiData' && <TaiData />}
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Taito Features">
               <TaiFeatData />
             </LayersControl.Overlay>
-            <LayersControl.Overlay checked name="Mokong Tea">
-            {filter === 'mokData' &&<MokData />}
+            <LayersControl.Overlay  checked name="Mokong Tea">
+              {filter === 'mokData' && <MokData />}
             </LayersControl.Overlay>
             <LayersControl.Overlay checked name="Mokong Features">
               <MokFeatData />
@@ -529,11 +802,12 @@ function Map() {
           </LayersControl>
           <MinimapControl position="bottomleft" />
           <LocationFinderDummy />
-          {renderFilteredComponent()}
+          {/* {renderFilteredComponent()} */}
         </MapContainer>
         <Legend />
       </div>
-      {/* <button onClick={handlePrintToPDF}>Print Map</button> */}
+      {/* <PrintMap /> */}
+      {/* <button onClick={handlePrint}>Print Map</button> */}
     </div>
   );
 }

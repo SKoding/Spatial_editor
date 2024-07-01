@@ -7,10 +7,17 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import DivisionFilter from './DivisionFilter';
 import PrintButton from '../Printer';
+import DownloadKML from './KmlDownloader';
+//import { useMapRef } from '../../Context/MapRefContext';
+//import { MapRefContext } from '../../Context/MapRefContext';
+// import KmlDownloader from './KmlDownloader';
+
 
 function Explore() {
   const [markerLocation, setMarkerLocation] = useContext(MapContext)
+  //const mapRef = useContext(MapRefContext)
   const [areaName, setAreaName] = useState("");
+
 
   useEffect(() => {
     const getArea = async () => {
@@ -32,7 +39,7 @@ function Explore() {
   return (
     <div className="m-2 h-screen ">
       <form>
-        <div>
+        {/* <div>
           <label
             htmlFor="location"
             className="block text-base font-semibold text-gray-900"
@@ -60,18 +67,21 @@ function Explore() {
               readOnly
             />
           </div>
-        </div>
+        </div> */}
         <div className='mb-4 align-middle border-2'>
         <DivisionFilter />
         </div>
-        <div className='italic font-bold mb-4 text-center'>
+        {/* <div className='italic font-bold mb-4 text-center'>
         Symbology
         </div>
         <div className='mb-4'>
           <LayerStyleControls />
-        </div>
+        </div> */}
+        {/* <div className='border-2 align-center rounded text-center mt-4 text-white bg-green-400 hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 '>
+          <PrintButton mapContainerRef={mapRef} className='mt-4' />
+        </div> */}
         <div className='border-2 align-center rounded text-center mt-4 text-white bg-green-400 hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 '>
-          <PrintButton className='mt-4' />
+          <DownloadKML />
         </div>
         {/* <button
           type="submit"

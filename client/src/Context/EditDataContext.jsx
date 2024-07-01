@@ -108,7 +108,7 @@ const EditProvider = ({ children }) => {
   
 
   return (
-    <EditContext.Provider value={{ setFilter,filter,data,kapData, taiData, taiFeatData, mokData, mokFeatData,featureStyles, contextValue, kapPoint, taiPoint, mokPoint }}>
+    <EditContext.Provider value={{ setFilter,filter,data ,kapData, taiData, taiFeatData, mokData, mokFeatData,featureStyles, contextValue, kapPoint, taiPoint, mokPoint }}>
       {children}
     </EditContext.Provider>
   );

@@ -1,7 +1,7 @@
 /* components/Legend.css */
 .legend {
     position: absolute;
-    bottom: 10px;
+    bottom: 70px;
     right: 10px;
     background: white;
     padding: 10px;
@@ -20,7 +20,11 @@
     align-items: center;
     margin-bottom: 5px;
   }
-  
+  .legend-item img {
+    width: 20px; /* Adjust size as needed */
+    height: auto;
+    margin-right: 5px;
+  }
   .legend-color {
     width: 20px;
     height: 20px;
