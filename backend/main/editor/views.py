@@ -5,7 +5,9 @@ from rest_framework import viewsets, status
 from rest_framework_gis.filters import GeoFilterSet, InBBoxFilter
 from .models import factoryAll, kapsiwonTea, kapsiwonFeatures,taitoTea, taitoFeatures, mokongFeatures, mokongTea, mokongPoints, kapsiwonPoints, taitoPoints
 from .serializer import factorySerializer, kapsiwonTeaSerializer, kapsiwonFeatureSerializer, taitoTeaSerializer, taitoFeatureSerializer, mokongTeaSerializer, mokongFeatureSerializer, mokongPointSerializer,kapsiwonPointSerializer, taitoPointSerializer
-
+# Handle PDF print
+import requests
+from django.http import HttpResponse
 # Create your views here.
 
 class factoryViewSet(viewsets.ModelViewSet):
@@ -50,3 +52,24 @@ class mokongFeatureViewSet(viewsets.ModelViewSet):
 class mokongPointViewSet(viewsets.ModelViewSet):
     queryset = mokongPoints.objects.all() #manager that returns queryset object same as SELECT * ALL FROM farms
     serializer_class = mokongPointSerializer
+
+# Map Printing
+def print_map(request):
+    qgis_server_url = 'http://nandi.tea/'
+    params = {
+        'SERVICE': 'WMS',
+        'VERSION': '1.3.0',
+        'REQUEST': 'GetPrint',
+        'TEMPLATE': 'YourTemplateName',
+        'MAP': '/path/to/your/project.qgz',
+        'FORMAT': 'pdf'
+    }
+    response = requests.get(qgis_server_url, params=params)
+    if response.status_code == 200:
+        pdf_content = response.content
+        return HttpResponse(pdf_content, content_type='application/pdf')
+    else:
+        return HttpResponse('Failed to generate map', status=500)
+
+
+

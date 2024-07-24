@@ -8,6 +8,9 @@ import jsPDF from 'jspdf';
 import DivisionFilter from './DivisionFilter';
 import PrintButton from '../Printer';
 import DownloadKML from './KmlDownloader';
+import PrintMap from './Print';
+import { IoIosPrint } from "react-icons/io";
+import LegendForm from './LegendForm';
 //import { useMapRef } from '../../Context/MapRefContext';
 //import { MapRefContext } from '../../Context/MapRefContext';
 // import KmlDownloader from './KmlDownloader';
@@ -71,6 +74,7 @@ function Explore() {
         <div className='mb-4 align-middle border-2'>
         <DivisionFilter />
         </div>
+        <LegendForm />
         {/* <div className='italic font-bold mb-4 text-center'>
         Symbology
         </div>
@@ -82,6 +86,10 @@ function Explore() {
         </div> */}
         <div className='border-2 align-center rounded text-center mt-4 text-white bg-green-400 hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 '>
           <DownloadKML />
+        </div>
+        <div className='border-2 align-center rounded text-center mt-4 text-white bg-gray-400 hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 '>
+          
+        <PrintMap />
         </div>
         {/* <button
           type="submit"

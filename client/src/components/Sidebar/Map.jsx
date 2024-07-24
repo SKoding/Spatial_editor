@@ -487,34 +487,6 @@ function Map() {
       });
     };
 
-    // mokPoint.features.forEach((feature) => {
-    //   const marker = L.marker(
-    //     [feature.geometry.coordinates[1], feature.geometry.coordinates[0]],
-    //     { icon: getMarkerIcon(feature) })
-    //     .bindPopup("<strong>${feature.properties.name}</strong><br /> + ${feature.properties.feature}<br />"
-    //       )
-
-    //   marker.on('Click', zoomToFeature)
-
-    //   if (feature.properties.feature === 'Shades') {
-    //     shadesLayer.addLayer(marker);
-    //   } else if ( feature.properties.feature === 'Water Tank'){
-    //     waterTanksLayer.addLayer(marker);
-    //   }
-    // });
-
-    // shadesLayer.addTo(map);
-    // waterTanksLayer.addTo(map);
-
-    // L.control.layers(null,{
-    //   'Shades':shadesLayer,
-    //   'Water Tanks': waterTanksLayer
-    // }).addTo(map);
-    // return () => {
-    //   map.removeLayer(shadesLayer);
-    //   map.removeLayer(waterTanksLayer);
-    // };
-
   
     return (
       <>
